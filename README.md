@@ -87,7 +87,7 @@ Semua angka klinis dan aturan ada di tabel **`pengaturan`** (Supabase → Table 
 | `maks_pesan_per_hari` | `2` | Per ortu/guru |
 | `lama_haid_otomatis` | `7` | Haid otomatis selesai setelah N hari |
 | `periode_penelitian` | `{"mulai":null,"selesai":null}` | Isi tanggal `YYYY-MM-DD` untuk membatasi pengingat & rekap |
-| `zona_waktu` | `"Asia/Jakarta"` | WITA: `Asia/Makassar`, WIT: `Asia/Jayapura` |
+| `zona_waktu` | `"Asia/Jakarta"` | Zona **sekolah**: dipakai untuk jam sekolah guru dan untuk siswi yang zona HP-nya belum terbaca. Jam minum siswi mengikuti zona waktu HP masing-masing (WIB/WITA/WIT/luar negeri) |
 
 Teks pesan pengingat ada di [`src/lib/pesan.ts`](src/lib/pesan.ts). Teks edukasi ada di [`src/lib/edukasi.tsx`](src/lib/edukasi.tsx), dan teks lembar persetujuan di [`src/app/persetujuan/page.tsx`](src/app/persetujuan/page.tsx). **Ketiganya perlu ditinjau pembimbing.**
 

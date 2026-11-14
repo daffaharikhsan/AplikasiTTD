@@ -6,6 +6,7 @@ import { ambilPengaturan } from "@/lib/pengaturan";
 import { saatLokal, jamKeMenit, menitKeJam, formatTanggalPanjang, tambahHari, NAMA_HARI } from "@/lib/waktu";
 import { terjadwal, jadwalBerikutnya, type StatusJadwal } from "@/lib/jadwal";
 import { namaDepan } from "@/lib/pesan";
+import { zonaSiswi } from "@/lib/zona";
 import { AktifkanNotifikasi } from "@/components/aktifkan-notifikasi";
 import { Logo } from "@/components/ui";
 import { IkonCentang } from "@/components/ikon";
@@ -20,6 +21,7 @@ type SiswiRingkas = {
   jam_minum: string | null;
   hari_minum: number | null;
   mulai_tanggal: string | null;
+  zona_waktu: string | null;
 };
 
 async function ambilPenerima(token: string) {
@@ -51,17 +53,18 @@ export default async function HalamanPenerima({ params }: PageProps<"/o/[token]"
   if (!p) notFound();
 
   const cfg = await ambilPengaturan();
+  // Tanggal di kepala halaman memakai zona sekolah; status tiap siswi memakai zona HP siswi
   const hariIni = saatLokal(cfg.zonaWaktu).tanggal;
   const db = supabaseAdmin();
   const { data: relasi } = await db
     .from("siswi_penerima")
-    .select("siswi:siswi_id (id, nama, kelas, status, jam_minum, hari_minum, mulai_tanggal)")
+    .select("siswi:siswi_id (id, nama, kelas, status, jam_minum, hari_minum, mulai_tanggal, zona_waktu)")
     .eq("penerima_id", p.id);
   const daftar = (relasi ?? [])
     .map((r) => r.siswi as unknown as SiswiRingkas | null)
     .filter((s): s is SiswiRingkas => Boolean(s));
   const ids = daftar.map((s) => s.id);
-  const dari7 = tambahHari(hariIni, -6);
+  const dari7 = tambahHari(hariIni, -7);
   const { data: konsumsi } = ids.length
     ? await db.from("konsumsi").select("siswi_id, tanggal").in("siswi_id", ids).gte("tanggal", dari7)
     : { data: [] };
@@ -70,6 +73,7 @@ export default async function HalamanPenerima({ params }: PageProps<"/o/[token]"
   const guru = p.peran === "guru";
   const baris = daftar
     .map((s) => {
+      const hariIni = saatLokal(zonaSiswi(s, cfg.zonaWaktu)).tanggal;
       const siap = s.status && s.jam_minum && s.mulai_tanggal;
       const hariIniJadwal = siap ? terjadwal(s as Required<SiswiRingkas> & { status: StatusJadwal }, hariIni) : false;
       const minum = sudah.has(`${s.id}:${hariIni}`);
@@ -81,7 +85,7 @@ export default async function HalamanPenerima({ params }: PageProps<"/o/[token]"
             .filter((t) => terjadwal(s as SiswiRingkas & { status: StatusJadwal }, t))
             .map((t) => ({ t, ok: sudah.has(`${s.id}:${t}`) }))
         : [];
-      return { s, siap, hariIniJadwal, minum, berikut, jam, riwayat };
+      return { s, siap, hariIniJadwal, minum, berikut, jam, riwayat, hariIni };
     })
     .sort((a, b) => Number(a.minum) - Number(b.minum) || a.s.kelas.localeCompare(b.s.kelas));
 
@@ -121,7 +125,7 @@ export default async function HalamanPenerima({ params }: PageProps<"/o/[token]"
         <b className="text-base">{guru ? `Siswi (${daftar.length})` : "Hari ini"}</b>
         {baris.length === 0 && <p className="text-sm text-muted">Belum ada siswi yang terhubung.</p>}
         <ul className="flex flex-col gap-2">
-          {baris.map(({ s, siap, hariIniJadwal, minum, berikut, jam, riwayat }) => (
+          {baris.map(({ s, siap, hariIniJadwal, minum, berikut, jam, riwayat, hariIni }) => (
             <li key={s.id} className="flex flex-col gap-2 rounded-[18px] bg-blush p-3">
               <div className="flex items-center gap-3">
                 <span className="flex min-w-0 flex-1 flex-col">

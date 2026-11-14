@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { daftar } from "../actions";
 import { HalamanLangkah, KepalaLangkah, PesanGalat } from "@/components/ui";
+import { InputZona } from "@/components/input-zona";
 
 export function FormDaftar() {
   const [state, aksi, memproses] = useActionState(daftar, undefined);
@@ -12,6 +13,7 @@ export function FormDaftar() {
 
   return (
     <form action={aksi} className="contents">
+      <InputZona />
       <HalamanLangkah
         aksi={
           <button type="submit" disabled={!setuju || memproses} className={setuju ? "btn-utama" : "btn btn-nonaktif"}>

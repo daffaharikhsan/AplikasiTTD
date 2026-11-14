@@ -14,6 +14,7 @@ export type Siswi = {
   jam_minum: string | null;
   hari_minum: number | null;
   mulai_tanggal: string | null;
+  zona_waktu: string | null;
   jumlah_kontak: number;
 };
 
@@ -28,7 +29,7 @@ export const siswiLogin = cache(async (): Promise<Siswi> => {
   const [{ data }, { count }] = await Promise.all([
     db
       .from("siswi")
-      .select("id, nama, kelas, sekolah, no_wa, status, jam_minum, hari_minum, mulai_tanggal")
+      .select("id, nama, kelas, sekolah, no_wa, status, jam_minum, hari_minum, mulai_tanggal, zona_waktu")
       .eq("id", id)
       .maybeSingle(),
     db.from("siswi_penerima").select("penerima_id", { count: "exact", head: true }).eq("siswi_id", id),

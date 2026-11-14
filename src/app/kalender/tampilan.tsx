@@ -12,6 +12,7 @@ import {
   BATAS_CENTANG_MUNDUR_HARI,
   type Haid,
 } from "@/lib/jadwal";
+import { zonaSiswi } from "@/lib/zona";
 import { saatLokal, tambahHari, hariDari, formatTanggalPanjang, NAMA_BULAN, NAMA_HARI, jamKeMenit, menitKeJam } from "@/lib/waktu";
 import { namaDepan } from "@/lib/pesan";
 import { HalamanApp } from "@/components/nav-bawah";
@@ -29,7 +30,7 @@ export async function HalamanKalender({ jenis, bulan }: { jenis: Jenis; bulan?: 
   if (!seharusnya.endsWith(jenis)) redirect(seharusnya);
 
   const cfg = await ambilPengaturan();
-  const hariIni = saatLokal(cfg.zonaWaktu).tanggal;
+  const hariIni = saatLokal(zonaSiswi(s, cfg.zonaWaktu)).tanggal;
   const db = supabaseAdmin();
   const [{ data: konsumsi }, { data: haidData }] = await Promise.all([
     db.from("konsumsi").select("tanggal").eq("siswi_id", s.id),
@@ -107,7 +108,7 @@ export async function HalamanKalender({ jenis, bulan }: { jenis: Jenis; bulan?: 
   const hariKe = harian ? Math.max(1, Math.round((Date.parse(hariIni) - Date.parse(s.mulai_tanggal)) / 86_400_000) + 1) : null;
 
   return (
-    <HalamanApp aktif="kalender" status={s.status}>
+    <HalamanApp aktif="kalender" status={s.status} zona={s.zona_waktu}>
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm text-muted">{formatTanggalPanjang(hariIni)}</span>

@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { tentukanStatus, terjadwal, hitungKepatuhan, haidAktif, jadwalBerikutnya } from "../src/lib/jadwal";
 import { saatLokal, hariDari, tambahHari, formatTanggalPanjang } from "../src/lib/waktu";
 import { normalisasiNomor, tampilNomor } from "../src/lib/telepon";
+import { zonaValid, zonaSiswi, labelZona } from "../src/lib/zona";
 
 // Status (kategori jadwal)
 assert.equal(tentukanStatus({ pernahPeriksa: true, kadarHb: 11.5, diagnosis: "tidak", batasHb: 12 }), "anemia");
@@ -52,5 +53,19 @@ assert.equal(normalisasiNomor("+62 812 3456 7890"), "6281234567890");
 assert.equal(normalisasiNomor("812 3456 7890"), "6281234567890");
 assert.equal(normalisasiNomor("021 555 1234"), null);
 assert.equal(tampilNomor("6281234567890"), "0812-3456-7890");
+
+// Zona waktu per siswi: detik yang sama, waktu lokal berbeda
+const t = new Date("2026-11-14T16:30:00Z"); // 23:30 WIB
+assert.deepEqual(saatLokal("Asia/Jakarta", t), { tanggal: "2026-11-14", menit: 23 * 60 + 30, hari: 6 });
+assert.deepEqual(saatLokal("Asia/Makassar", t), { tanggal: "2026-11-15", menit: 30, hari: 0 }); // 00:30 WITA, sudah Minggu
+assert.deepEqual(saatLokal("Asia/Jayapura", t), { tanggal: "2026-11-15", menit: 90, hari: 0 }); // 01:30 WIT
+assert.deepEqual(saatLokal("Europe/London", t), { tanggal: "2026-11-14", menit: 16 * 60 + 30, hari: 6 });
+assert.equal(zonaValid("Asia/Makassar"), true);
+assert.equal(zonaValid("Bukan/Zona"), false);
+assert.equal(zonaValid("<script>"), false);
+assert.equal(zonaSiswi({ zona_waktu: null }, "Asia/Jakarta"), "Asia/Jakarta");
+assert.equal(zonaSiswi({ zona_waktu: "Asia/Jayapura" }, "Asia/Jakarta"), "Asia/Jayapura");
+assert.equal(labelZona("Asia/Makassar"), "WITA");
+assert.equal(labelZona("Asia/Jayapura"), "WIT");
 
 console.log("Semua uji logika lulus ✓");

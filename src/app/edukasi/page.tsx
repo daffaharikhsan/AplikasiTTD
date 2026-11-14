@@ -12,7 +12,7 @@ export default async function Edukasi() {
   const [utama, ...lain] = TOPIK;
 
   return (
-    <HalamanApp aktif="edukasi" status={s.status}>
+    <HalamanApp aktif="edukasi" status={s.status} zona={s.zona_waktu}>
       <div className="flex flex-col gap-1">
         <h1 className="font-judul text-[28px] font-normal">Edukasi</h1>
         <span className="text-[15px] text-muted">Bacaan singkat tentang anemia &amp; TTD</span>

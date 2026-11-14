@@ -7,6 +7,7 @@ import { normalisasiNomor } from "@/lib/telepon";
 import { ambilPengaturan } from "@/lib/pengaturan";
 import { tentukanStatus, type Diagnosis } from "@/lib/jadwal";
 import { saatLokal } from "@/lib/waktu";
+import { zonaSiswi, zonaValid } from "@/lib/zona";
 
 export type HasilForm = { galat?: string } | undefined;
 const ambil = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
@@ -113,8 +114,16 @@ export async function simpanJadwal(_: HasilForm, fd: FormData): Promise<HasilFor
   }
 
   const cfg = await ambilPengaturan();
-  const update: Record<string, unknown> = { jam_minum: jamBulat, hari_minum: hari, updated_at: new Date().toISOString() };
-  if (!s.mulai_tanggal) update.mulai_tanggal = saatLokal(cfg.zonaWaktu).tanggal;
+  // Jam minum diartikan menurut zona waktu HP siswi saat menyimpan
+  const zonaHp = ambil(fd, "zona");
+  const zona = zonaValid(zonaHp) ? zonaHp : zonaSiswi(s, cfg.zonaWaktu);
+  const update: Record<string, unknown> = {
+    jam_minum: jamBulat,
+    hari_minum: hari,
+    zona_waktu: zona,
+    updated_at: new Date().toISOString(),
+  };
+  if (!s.mulai_tanggal) update.mulai_tanggal = saatLokal(zona).tanggal;
   const { error } = await supabaseAdmin().from("siswi").update(update).eq("id", s.id);
   if (error) return { galat: "Gagal menyimpan: " + error.message };
 

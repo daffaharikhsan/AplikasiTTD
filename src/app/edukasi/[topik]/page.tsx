@@ -24,7 +24,7 @@ export default async function TopikEdukasi({ params }: PageProps<"/edukasi/[topi
   });
 
   return (
-    <HalamanApp aktif="edukasi" status={s.status}>
+    <HalamanApp aktif="edukasi" status={s.status} zona={s.zona_waktu}>
       <Link href="/edukasi" aria-label="Kembali ke Edukasi" className="flex size-11 items-center justify-center rounded-full bg-white text-ink">
         <IkonKembali />
       </Link>

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { siswiSiap } from "@/lib/siswi";
 import { ambilPengaturan } from "@/lib/pengaturan";
+import { zonaSiswi } from "@/lib/zona";
 import { saatLokal, tambahHari } from "@/lib/waktu";
 import { terjadwal, haidAktif, BATAS_CENTANG_MUNDUR_HARI } from "@/lib/jadwal";
 
@@ -12,7 +13,7 @@ const valid = (t: string) => /^\d{4}-\d{2}-\d{2}$/.test(t);
 export async function centangMinum(fd: FormData) {
   const s = await siswiSiap();
   const cfg = await ambilPengaturan();
-  const hariIni = saatLokal(cfg.zonaWaktu).tanggal;
+  const hariIni = saatLokal(zonaSiswi(s, cfg.zonaWaktu)).tanggal;
   const tanggal = String(fd.get("tanggal") ?? hariIni);
   if (!valid(tanggal) || tanggal > hariIni || tanggal < tambahHari(hariIni, -BATAS_CENTANG_MUNDUR_HARI)) return;
   if (!terjadwal(s, tanggal)) return;
@@ -26,7 +27,7 @@ export async function centangMinum(fd: FormData) {
 export async function batalCentang(fd: FormData) {
   const s = await siswiSiap();
   const cfg = await ambilPengaturan();
-  const hariIni = saatLokal(cfg.zonaWaktu).tanggal;
+  const hariIni = saatLokal(zonaSiswi(s, cfg.zonaWaktu)).tanggal;
   const tanggal = String(fd.get("tanggal") ?? "");
   if (tanggal !== hariIni) return;
   await supabaseAdmin().from("konsumsi").delete().eq("siswi_id", s.id).eq("tanggal", tanggal);
@@ -36,7 +37,7 @@ export async function batalCentang(fd: FormData) {
 export async function aturHaid(fd: FormData) {
   const s = await siswiSiap();
   const cfg = await ambilPengaturan();
-  const hariIni = saatLokal(cfg.zonaWaktu).tanggal;
+  const hariIni = saatLokal(zonaSiswi(s, cfg.zonaWaktu)).tanggal;
   const db = supabaseAdmin();
   const { data: daftar } = await db
     .from("periode_haid")

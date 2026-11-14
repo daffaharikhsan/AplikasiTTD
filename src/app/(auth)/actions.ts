@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { supabaseAdmin, supabaseSesi } from "@/lib/supabase/server";
 import { emailDariNomor, normalisasiNomor } from "@/lib/telepon";
+import { zonaValid } from "@/lib/zona";
 
 export type HasilForm = { galat?: string; nilai?: Record<string, string> } | undefined;
 
@@ -59,6 +60,7 @@ export async function daftar(_: HasilForm, fd: FormData): Promise<HasilForm> {
     no_wa: noWa,
     setuju_penelitian: true,
     setuju_at: new Date().toISOString(),
+    zona_waktu: zonaValid(ambil(fd, "zona")) ? ambil(fd, "zona") : null,
   });
   if (galatProfil) return { galat: "Gagal menyimpan data: " + galatProfil.message, nilai };
 

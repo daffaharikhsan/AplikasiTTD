@@ -7,6 +7,7 @@ import { HalamanApp } from "@/components/nav-bawah";
 import { FormJadwal } from "@/components/form-jadwal";
 import { AktifkanNotifikasi } from "@/components/aktifkan-notifikasi";
 import { TombolUji } from "./tombol-uji";
+import { labelZona, zonaSiswi } from "@/lib/zona";
 
 export const metadata: Metadata = { title: "Pengingat" };
 
@@ -22,6 +23,7 @@ export default async function Pengingat({ searchParams }: PageProps<"/pengingat"
   const p1 = pesanSiswi(s.status, 1, false);
   const p2 = pesanSiswi(s.status, 2, false);
   const nama = namaDepan(s.nama);
+  const zona = zonaSiswi(s, cfg.zonaWaktu);
 
   const langkah = [
     { jam: menitKeJam(t1), judul: "Pengingat pertama", isi: `“${p1.judul}. ${p1.isi.split(".")[0]}.” + ke ortu & guru`, warna: "bg-berry" },
@@ -30,7 +32,7 @@ export default async function Pengingat({ searchParams }: PageProps<"/pengingat"
   ];
 
   return (
-    <HalamanApp aktif="pengingat" status={s.status}>
+    <HalamanApp aktif="pengingat" status={s.status} zona={s.zona_waktu}>
       <h1 className="font-judul text-[28px] font-normal">Pengingat</h1>
 
       {tersimpan && (
@@ -39,6 +41,10 @@ export default async function Pengingat({ searchParams }: PageProps<"/pengingat"
 
       <AktifkanNotifikasi ringkas />
 
+      <p className="-mb-1.5 px-1 text-[13px] text-muted">
+        Jam mengikuti waktu di HP-mu: <b className="text-ink-2">{labelZona(zona)}</b> ({zona}). Kalau kamu pindah daerah,
+        jadwal ikut menyesuaikan.
+      </p>
       <FormJadwal
         status={s.status}
         jamAwal={s.jam_minum.slice(0, 5)}

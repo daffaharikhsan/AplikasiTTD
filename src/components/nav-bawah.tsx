@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { IkonBuku, IkonKalender, IkonLonceng, IkonProfil } from "@/components/ikon";
 import type { StatusJadwal } from "@/lib/jadwal";
+import { SinkronZona } from "@/components/sinkron-zona";
 
 const MENU = [
   { kunci: "kalender", href: "/kalender", label: "Kalender", Ikon: IkonKalender },
@@ -41,16 +42,20 @@ export function NavBawah({ aktif, status }: { aktif: MenuAktif; status?: StatusJ
 export function HalamanApp({
   aktif,
   status,
+  zona,
   children,
 }: {
   aktif: MenuAktif;
   status?: StatusJadwal;
+  /** Zona waktu tersimpan; bila diberikan, zona HP disinkronkan otomatis. */
+  zona?: string | null;
   children: React.ReactNode;
 }) {
   return (
     <>
       <main className="flex flex-1 flex-col gap-3.5 px-5 pt-12 pb-3">{children}</main>
       <NavBawah aktif={aktif} status={status} />
+      {zona !== undefined && <SinkronZona tersimpan={zona} />}
     </>
   );
 }

@@ -4,7 +4,7 @@ import { penelitiMasuk, ambilSemua } from "@/lib/peneliti";
 const EKSPOR: Record<string, { sumber: string; kolom: string; urut: { kolom: string; naik?: boolean }[] }> = {
   "kepatuhan-harian": {
     sumber: "rekap_kepatuhan_harian",
-    kolom: "siswi_id, nama, kelas, sekolah, kategori_jadwal, tanggal, jam_minum, diminum, diminum_pada, sedang_haid",
+    kolom: "siswi_id, nama, kelas, sekolah, kategori_jadwal, tanggal, jam_minum, zona_waktu, diminum, diminum_pada, sedang_haid",
     urut: [{ kolom: "nama" }, { kolom: "tanggal" }],
   },
   "kepatuhan-siswi": {
@@ -14,7 +14,7 @@ const EKSPOR: Record<string, { sumber: string; kolom: string; urut: { kolom: str
   },
   siswi: {
     sumber: "siswi",
-    kolom: "id, nama, kelas, sekolah, no_wa, setuju_penelitian, setuju_at, consent_kertas_diterima, status, jam_minum, hari_minum, mulai_tanggal, created_at",
+    kolom: "id, nama, kelas, sekolah, no_wa, setuju_penelitian, setuju_at, consent_kertas_diterima, status, jam_minum, hari_minum, zona_waktu, mulai_tanggal, created_at",
     urut: [{ kolom: "created_at" }],
   },
   skrining: {

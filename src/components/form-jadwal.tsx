@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { simpanJadwal } from "@/app/mulai/actions";
 import { Catatan, HalamanLangkah, PesanGalat } from "@/components/ui";
 import { IkonInfo } from "@/components/ikon";
+import { InputZona } from "@/components/input-zona";
 import type { StatusJadwal } from "@/lib/jadwal";
 
 const HARI = [
@@ -89,6 +90,7 @@ export function FormJadwal({
           sekolah), jadi guru tidak ikut diingatkan. Orang tua tetap diingatkan.
         </Catatan>
       )}
+      <InputZona />
       {dari && <input type="hidden" name="dari" value={dari} />}
     </>
   );
