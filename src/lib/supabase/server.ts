@@ -2,12 +2,13 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { supabaseUrl } from "@/lib/supabase/url";
 
 /** Klien dengan sesi pengguna (dari cookie). Dipakai untuk mengetahui siapa yang login. */
 export async function supabaseSesi() {
   const cookieStore = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseUrl(),
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
@@ -34,7 +35,7 @@ export async function supabaseSesi() {
  */
 export function supabaseAdmin() {
   return createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseUrl(),
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
