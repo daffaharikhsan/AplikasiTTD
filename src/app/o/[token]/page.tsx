@@ -11,7 +11,15 @@ import { AktifkanNotifikasi } from "@/components/aktifkan-notifikasi";
 import { Logo } from "@/components/ui";
 import { IkonCentang } from "@/components/ikon";
 
-export const metadata: Metadata = { title: "Pengingat TTD", robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: PageProps<"/o/[token]">): Promise<Metadata> {
+  const { token } = await params;
+  return {
+    title: "Pengingat TTD",
+    robots: { index: false, follow: false },
+    // Ikon layar utama membuka halaman ini, bukan beranda siswi
+    manifest: `/o/${token}/manifest.webmanifest`,
+  };
+}
 
 type SiswiRingkas = {
   id: string;
@@ -171,6 +179,26 @@ export default async function HalamanPenerima({ params }: PageProps<"/o/[token]"
           ))}
         </ul>
       </section>
+
+      <details className="rounded-[22px] bg-white p-4">
+        <summary className="min-h-11 cursor-pointer content-center font-judul text-lg font-medium">
+          Pasang di layar utama HP
+        </summary>
+        <div className="prosa pt-2">
+          <p>Supaya halaman ini mudah dibuka lagi dan notifikasi lebih andal:</p>
+          <p><strong>Android (Chrome):</strong></p>
+          <ul>
+            <li>Ketuk tombol titik tiga <strong>⋮</strong> di kanan atas.</li>
+            <li>Pilih <strong>Tambahkan ke layar utama</strong> atau <strong>Instal aplikasi</strong>, lalu <strong>Tambahkan</strong>.</li>
+          </ul>
+          <p><strong>iPhone (Safari):</strong></p>
+          <ul>
+            <li>Ketuk tombol <strong>Bagikan</strong> (kotak dengan panah ke atas) di bawah.</li>
+            <li>Pilih <strong>Tambahkan ke Layar Utama</strong>, lalu <strong>Tambah</strong>.</li>
+            <li>Buka dari ikon baru itu, lalu tekan <strong>Aktifkan pengingat</strong>. Di iPhone, langkah ini wajib.</li>
+          </ul>
+        </div>
+      </details>
 
       <section className="prosa rounded-[22px] bg-white p-4">
         <h2 className="mt-0!">Cara membantu</h2>

@@ -123,9 +123,13 @@ export async function simpanJadwal(_: HasilForm, fd: FormData): Promise<HasilFor
     zona_waktu: zona,
     updated_at: new Date().toISOString(),
   };
-  if (!s.mulai_tanggal) update.mulai_tanggal = saatLokal(zona).tanggal;
-  const { error } = await supabaseAdmin().from("siswi").update(update).eq("id", s.id);
+  const hariIni = saatLokal(zona).tanggal;
+  if (!s.mulai_tanggal) update.mulai_tanggal = hariIni;
+  const db = supabaseAdmin();
+  const { error } = await db.from("siswi").update(update).eq("id", s.id);
   if (error) return { galat: "Gagal menyimpan: " + error.message };
+  // Jadwal diganti → pengingat hari ini mengikuti jam yang baru (batas 2 pesan/hari ortu & guru tetap berlaku)
+  await db.from("klaim_pengingat").delete().eq("siswi_id", s.id).eq("tanggal", hariIni);
 
   if (fd.get("dari") === "pengingat") redirect("/pengingat?tersimpan=1");
   redirect("/mulai/aktifkan");

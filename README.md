@@ -4,7 +4,8 @@ PWA pengingat minum Tablet Tambah Darah (TTD) berbasis kalender untuk siswi SMA,
 
 **Teknologi:** Next.js 16 (PWA) · Supabase (database, login, penjadwal pg_cron) · Web Push · Vercel. WhatsApp (Fonnte) opsional sebagai cadangan.
 
-Panduan uji coba untuk penguji: [docs/PANDUAN_UJI_COBA.md](docs/PANDUAN_UJI_COBA.md)
+Panduan uji coba untuk penguji: [docs/PANDUAN_UJI_COBA.md](docs/PANDUAN_UJI_COBA.md)  
+Membuat akun uji & menghapus data uji: [docs/AKUN_DAN_DATA_UJI.md](docs/AKUN_DAN_DATA_UJI.md)
 
 ## Alur
 

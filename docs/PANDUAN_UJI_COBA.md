@@ -193,6 +193,8 @@ Untuk setiap masalah, kirim ke peneliti:
 
 ## 6. Setelah uji coba selesai (untuk peneliti)
 
+Tata cara lengkap membuat akun uji dan menghapus data uji (termasuk perintah SQL) ada di [AKUN_DAN_DATA_UJI.md](AKUN_DAN_DATA_UJI.md). Ringkasnya:
+
 Sebelum penelitian dimulai, hapus semua data uji agar tidak ikut dianalisis:
 1. Supabase → **Authentication → Users** → hapus akun uji (email berawalan nomor `UJI_SISWI_NO_WA` dengan format `62…@siswi.pengingat-ttd.app`, serta akun teman yang ikut mencoba). Data siswinya ikut terhapus otomatis.
 2. Supabase → **Table Editor → penerima** → hapus baris "Ortu UJI COBA", "Guru UJI COBA", dan kontak uji lainnya.
