@@ -114,5 +114,6 @@ cp .env.example .env.local   # isi nilainya
 npm install
 npm run dev                  # http://localhost:3000
 npm run uji                  # uji logika jadwal
+npm run cek-data             # cek kualitas data penelitian di Supabase (hanya membaca)
 npm run build
 ```
