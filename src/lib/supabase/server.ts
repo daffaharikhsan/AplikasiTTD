@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
@@ -41,9 +42,13 @@ export function supabaseAdmin() {
   );
 }
 
-/** ID pengguna yang login (diverifikasi ke server Supabase), atau null. */
-export async function idPenggunaLogin(): Promise<string | null> {
+/**
+ * ID pengguna yang login, atau null. Token diverifikasi secara kriptografis
+ * (kunci ES256 dari JWKS yang di-cache), jadi tanpa permintaan ke Supabase di
+ * setiap halaman. Di-cache per permintaan agar tidak diulang.
+ */
+export const idPenggunaLogin = cache(async (): Promise<string | null> => {
   const supabase = await supabaseSesi();
-  const { data } = await supabase.auth.getUser();
-  return data.user?.id ?? null;
-}
+  const { data } = await supabase.auth.getClaims();
+  return (data?.claims?.sub as string | undefined) ?? null;
+});

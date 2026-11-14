@@ -55,7 +55,7 @@ export async function simpanKontak(_: HasilForm, fd: FormData): Promise<HasilFor
   }
 
   if (fd.get("dari") === "profil") redirect("/profil");
-  redirect(URL_LANGKAH[await langkahBerikutnya({ ...s })]);
+  redirect(URL_LANGKAH[langkahBerikutnya({ ...s, jumlah_kontak: Math.max(1, s.jumlah_kontak) })]);
 }
 
 export async function simpanSkrining(_: HasilForm, fd: FormData): Promise<HasilForm> {
@@ -89,7 +89,7 @@ export async function simpanSkrining(_: HasilForm, fd: FormData): Promise<HasilF
   await db.from("siswi").update({ status, updated_at: new Date().toISOString() }).eq("id", s.id);
 
   if (status === "belum_diketahui") redirect("/mulai/cek-hb");
-  const berikut = await langkahBerikutnya({ ...s, status });
+  const berikut = langkahBerikutnya({ ...s, status });
   redirect(berikut === "selesai" ? "/kalender?skrining=1" : URL_LANGKAH[berikut]);
 }
 

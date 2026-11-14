@@ -44,7 +44,15 @@ const PETA: Record<string, keyof Pengaturan> = {
   periode_penelitian: "periodePenelitian",
 };
 
+let simpanan: { nilai: Pengaturan; sampai: number } | null = null;
+const UMUR_SIMPANAN_MS = 60_000;
+
+/**
+ * Membaca tabel pengaturan. Disimpan di memori server selama 60 detik agar
+ * tidak membaca database di setiap halaman; perubahan berlaku dalam <= 1 menit.
+ */
 export async function ambilPengaturan(): Promise<Pengaturan> {
+  if (simpanan && simpanan.sampai > Date.now()) return simpanan.nilai;
   const { data, error } = await supabaseAdmin().from("pengaturan").select("kunci, nilai");
   if (error) throw new Error("Gagal membaca pengaturan: " + error.message);
   const hasil: Pengaturan = structuredClone(PENGATURAN_BAWAAN);
@@ -54,5 +62,6 @@ export async function ambilPengaturan(): Promise<Pengaturan> {
       (hasil as Record<string, unknown>)[kunci] = baris.nilai;
     }
   }
+  simpanan = { nilai: hasil, sampai: Date.now() + UMUR_SIMPANAN_MS };
   return hasil;
 }

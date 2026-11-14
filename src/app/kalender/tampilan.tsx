@@ -107,7 +107,7 @@ export async function HalamanKalender({ jenis, bulan }: { jenis: Jenis; bulan?: 
   const hariKe = harian ? Math.max(1, Math.round((Date.parse(hariIni) - Date.parse(s.mulai_tanggal)) / 86_400_000) + 1) : null;
 
   return (
-    <HalamanApp aktif="kalender">
+    <HalamanApp aktif="kalender" status={s.status}>
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm text-muted">{formatTanggalPanjang(hariIni)}</span>

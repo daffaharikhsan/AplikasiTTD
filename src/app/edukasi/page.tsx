@@ -8,11 +8,11 @@ import { IkonLanjut } from "@/components/ikon";
 export const metadata: Metadata = { title: "Edukasi" };
 
 export default async function Edukasi() {
-  await siswiSiap();
+  const s = await siswiSiap();
   const [utama, ...lain] = TOPIK;
 
   return (
-    <HalamanApp aktif="edukasi">
+    <HalamanApp aktif="edukasi" status={s.status}>
       <div className="flex flex-col gap-1">
         <h1 className="font-judul text-[28px] font-normal">Edukasi</h1>
         <span className="text-[15px] text-muted">Bacaan singkat tentang anemia &amp; TTD</span>

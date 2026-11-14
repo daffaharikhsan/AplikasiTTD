@@ -27,7 +27,7 @@ export default async function Profil() {
   const guru = kontak.filter((k) => k.peran === "guru");
 
   return (
-    <HalamanApp aktif="profil">
+    <HalamanApp aktif="profil" status={s.status}>
       <h1 className="font-judul text-[28px] font-normal">Profil</h1>
 
       <section className="kartu flex flex-col gap-1 rounded-[24px]">

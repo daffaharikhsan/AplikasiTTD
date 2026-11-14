@@ -24,7 +24,8 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  // Memperbarui token bila hampir kedaluwarsa; verifikasi lokal (tanpa panggilan jaringan)
+  await supabase.auth.getClaims();
   return response;
 }
 

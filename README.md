@@ -72,7 +72,7 @@ curl -X POST https://NAMA-APLIKASI.vercel.app/api/cron/pengingat -H "Authorizati
 
 ## Mengubah angka dosis & aturan (tanpa coding)
 
-Semua angka klinis dan aturan ada di tabel **`pengaturan`** (Supabase → Table Editor). Ubah kolom `nilai`, dan perubahan langsung berlaku tanpa deploy ulang.
+Semua angka klinis dan aturan ada di tabel **`pengaturan`** (Supabase → Table Editor). Ubah kolom `nilai`, dan perubahan berlaku dalam 1 menit tanpa deploy ulang.
 
 | Kunci | Bawaan | Keterangan |
 |---|---|---|

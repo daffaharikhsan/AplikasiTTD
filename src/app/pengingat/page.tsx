@@ -30,7 +30,7 @@ export default async function Pengingat({ searchParams }: PageProps<"/pengingat"
   ];
 
   return (
-    <HalamanApp aktif="pengingat">
+    <HalamanApp aktif="pengingat" status={s.status}>
       <h1 className="font-judul text-[28px] font-normal">Pengingat</h1>
 
       {tersimpan && (
