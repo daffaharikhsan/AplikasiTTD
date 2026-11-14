@@ -112,18 +112,35 @@ export default async function Peneliti() {
         ))}
       </section>
 
-      <section className="flex flex-col gap-3 rounded-[24px] bg-white p-5">
-        <h2 className="font-judul text-lg font-medium">Ekspor ke Excel (CSV)</h2>
-        <div className="flex flex-wrap gap-2">
-          {EKSPOR.map(([k, l]) => (
-            <a key={k} href={`/api/ekspor/${k}`} className="flex min-h-11 items-center rounded-full bg-petal px-4 text-sm font-bold text-ink no-underline">
-              {l}
-            </a>
-          ))}
+      <section className="flex flex-col gap-4 rounded-[24px] bg-white p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col">
+            <h2 className="font-judul text-lg font-medium">Ekspor data</h2>
+            <span className="text-[13px] text-muted">Excel (.xlsx) untuk dibuka langsung; CSV untuk SPSS/R.</span>
+          </div>
+          <a href="/api/ekspor/semua" download className="flex min-h-11 items-center gap-2 rounded-full bg-berry px-5 text-sm font-bold text-white no-underline">
+            Unduh semua data (1 file Excel)
+          </a>
         </div>
+        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {EKSPOR.map(([k, l]) => (
+            <li key={k} className="flex items-center justify-between gap-2 rounded-2xl bg-blush py-2 pr-2 pl-4">
+              <span className="text-sm font-semibold">{l}</span>
+              <span className="flex shrink-0 gap-1.5">
+                <a href={`/api/ekspor/${k}?format=xlsx`} className="flex min-h-10 items-center rounded-full bg-petal px-3.5 text-[13px] font-bold text-ink no-underline">
+                  Excel
+                </a>
+                <a href={`/api/ekspor/${k}`} className="flex min-h-10 items-center rounded-full border-[1.5px] border-garis-3 px-3.5 text-[13px] font-bold text-ink no-underline">
+                  CSV
+                </a>
+              </span>
+            </li>
+          ))}
+        </ul>
         <p className="text-[13px] text-muted">
-          File memakai pemisah titik koma (cocok untuk Excel berbahasa Indonesia). Untuk SPSS/R tambahkan{" "}
-          <code>?pemisah=koma</code> di akhir alamat unduhan.
+          File Excel: angka dan tanggal tersimpan sebagai angka/tanggal asli, jam memakai zona waktu sekolah, nilai
+          ya/tidak ditulis 1/0. CSV memakai pemisah titik koma; untuk SPSS/R tambahkan <code>?pemisah=koma</code> di akhir
+          alamat unduhan.
         </p>
       </section>
 
