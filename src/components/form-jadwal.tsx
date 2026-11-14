@@ -5,6 +5,7 @@ import { simpanJadwal } from "@/app/mulai/actions";
 import { Catatan, HalamanLangkah, PesanGalat } from "@/components/ui";
 import { IkonInfo } from "@/components/ikon";
 import { InputZona } from "@/components/input-zona";
+import { PengingatBerikutnya } from "@/components/pengingat-berikutnya";
 import type { StatusJadwal } from "@/lib/jadwal";
 
 const HARI = [
@@ -83,6 +84,8 @@ export function FormJadwal({
           className="h-12 rounded-[14px] border-[1.5px] border-garis bg-blush px-2.5 text-lg font-bold accent-berry"
         />
       </div>
+
+      <PengingatBerikutnya mingguan={mingguan} hari={hari} jam={jam} />
 
       {(diLuarJamSekolah || bukanHariSekolah) && (
         <Catatan ikon={<IkonInfo />} warna="bg-peach">
