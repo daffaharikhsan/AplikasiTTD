@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "uji": "tsx scripts/uji-logika.ts",
-    "cek-data": "node --env-file=.env.local node_modules/tsx/dist/cli.mjs scripts/cek-data.ts"
+    "cek-data": "node --env-file=.env.local node_modules/tsx/dist/cli.mjs scripts/cek-data.ts",
+    "uji-fuzz": "tsx scripts/uji-fuzz.ts",
+    "uji-keamanan": "node --env-file=.env.local node_modules/tsx/dist/cli.mjs scripts/uji-keamanan.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

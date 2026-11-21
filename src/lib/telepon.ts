@@ -1,6 +1,9 @@
 /** Normalisasi nomor WhatsApp Indonesia ke format 628xxxxxxxxx. Mengembalikan null jika tidak valid. */
 export function normalisasiNomor(masukan: string): string | null {
-  let n = (masukan || "").replace(/[^\d+]/g, "");
+  // Hanya angka dan pemisah umum yang boleh; huruf/simbol lain = salah ketik → tolak
+  if (typeof masukan !== "string" || !/^[\d\s+\-().]*$/.test(masukan)) return null;
+  let n = masukan.replace(/[^\d+]/g, "");
+  if (n.lastIndexOf("+") > 0) return null; // "+" hanya boleh di depan
   if (n.startsWith("+")) n = n.slice(1);
   if (n.startsWith("0")) n = "62" + n.slice(1);
   else if (n.startsWith("8")) n = "62" + n;

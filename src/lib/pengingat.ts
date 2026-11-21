@@ -6,8 +6,7 @@ import { terjadwal, sedangHaidPada, type StatusJadwal, type Haid } from "@/lib/j
 import { pesanSiswi, pesanOrtu, pesanGuru, namaDepan, type Tahap } from "@/lib/pesan";
 import { kirimKe, type HasilKirim } from "@/lib/notifikasi";
 import { zonaSiswi } from "@/lib/zona";
-
-const TOLERANSI_MENIT = 120; // pengingat tahap 1/2 masih dikirim sampai 2 jam setelah waktunya
+import { tahapJatuhTempo } from "@/lib/tahap";
 
 type SiswiBaris = {
   id: string;
@@ -142,17 +141,8 @@ export async function jalankanPengingat(waktu: Date = new Date()) {
     const hariIni = kini.tanggal;
     if (sudahMinum.has(`${s.id}:${hariIni}`)) continue;
 
-    const t1 = jamKeMenit(s.jam_minum);
-    const t2 = t1 + (cfg.jedaTahap2Menit[s.status] ?? 60);
-    const kandidat: { tahap: Tahap; dari: number; sampai: number }[] = [
-      { tahap: 1, dari: t1, sampai: t1 + TOLERANSI_MENIT },
-      { tahap: 2, dari: t2, sampai: t2 + TOLERANSI_MENIT },
-    ];
-    if (jamTahap3 > t2) kandidat.push({ tahap: 3, dari: jamTahap3, sampai: 24 * 60 });
-
-    const jatuhTempo = kandidat.filter((k) => kini.menit >= k.dari && kini.menit < k.sampai).pop();
-    if (!jatuhTempo) continue;
-    const tahap = jatuhTempo.tahap;
+    const tahap = tahapJatuhTempo(jamKeMenit(s.jam_minum), cfg.jedaTahap2Menit[s.status] ?? 60, jamTahap3, kini.menit);
+    if (!tahap) continue;
     if (sudahKlaim.has(`${s.id}:${hariIni}:${tahap}`)) continue;
 
     // Klaim dulu agar tidak terkirim dua kali jika cron berjalan bersamaan

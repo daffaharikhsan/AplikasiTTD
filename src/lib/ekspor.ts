@@ -85,6 +85,8 @@ function selCsv(v: unknown, pemisah: string): string {
   if (v === null || v === undefined) return "";
   let s = Array.isArray(v) ? v.join(" ") : typeof v === "boolean" ? (v ? "1" : "0") : String(v);
   if (pemisah === ";" && typeof v === "number") s = s.replace(".", ","); // desimal ala Excel Indonesia
+  // Cegah injeksi formula: teks isian pengguna yang diawali = + - @ tab/CR dijalankan Excel sebagai rumus
+  if (typeof v === "string" && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
   return /["\n\r;,]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
