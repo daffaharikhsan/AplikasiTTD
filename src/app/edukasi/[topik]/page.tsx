@@ -35,6 +35,9 @@ export default async function TopikEdukasi({ params }: PageProps<"/edukasi/[topi
         <h1 className="font-judul text-[24px] leading-tight font-medium">{t.judul}</h1>
       </div>
       <article className="prosa rounded-[22px] bg-white p-5">{t.isi}</article>
+      <p className="px-1 text-xs leading-normal text-muted">
+        Sumber: Buku Saku Pencegahan Anemia pada Ibu Hamil dan Remaja Putri, Kementerian Kesehatan RI, 2023.
+      </p>
     </HalamanApp>
   );
 }

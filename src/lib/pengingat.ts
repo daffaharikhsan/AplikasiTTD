@@ -164,7 +164,7 @@ export async function jalankanPengingat(waktu: Date = new Date()) {
     ringkasan.diproses++;
 
     const haid = sedangHaidPada(haidPer.get(s.id) ?? [], hariIni, cfg.lamaHaidOtomatis);
-    const hasilSiswi = await kirimKe({ siswiId: s.id }, s.no_wa, {
+    const hasilSiswi = await kirimKe({ siswiId: s.id }, {
       ...pesanSiswi(s.status, tahap, haid),
       url: `${urlApp()}/kalender`,
       tag: `ttd-${hariIni}`,
@@ -188,7 +188,7 @@ export async function jalankanPengingat(waktu: Date = new Date()) {
         catat(hariIni, "ortu", tahap, { kanal: "tidak_ada", status: "dilewati", detail: "Batas pesan harian" }, { siswi_id: s.id, penerima_id: p.id });
         continue;
       }
-      const hasil = await kirimKe({ penerimaId: p.id }, p.no_wa, {
+      const hasil = await kirimKe({ penerimaId: p.id }, {
         ...pesanOrtu(namaDepan(s.nama), tahap),
         url: `${urlApp()}/o/${p.token}`,
         tag: `ttd-${s.id}-${hariIni}`,
@@ -206,7 +206,7 @@ export async function jalankanPengingat(waktu: Date = new Date()) {
       continue;
     }
     const nama = siswi.map((s) => `${namaDepan(s.nama)} (${s.kelas})`);
-    const hasil = await kirimKe({ penerimaId: guru.id }, guru.no_wa, {
+    const hasil = await kirimKe({ penerimaId: guru.id }, {
       ...pesanGuru(nama, tahap),
       url: `${urlApp()}/o/${guru.token}`,
       tag: `ttd-guru-${sekolah.tanggal}-${tahap}`,

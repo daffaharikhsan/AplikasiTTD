@@ -8,6 +8,7 @@ import { ambilPengaturan } from "@/lib/pengaturan";
 import { tentukanStatus, type Diagnosis } from "@/lib/jadwal";
 import { saatLokal } from "@/lib/waktu";
 import { zonaSiswi, zonaValid } from "@/lib/zona";
+import { GEJALA_5L, KOLOM_BOOLEAN, POLA_MAKAN } from "@/lib/skrining";
 
 export type HasilForm = { galat?: string } | undefined;
 const ambil = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
@@ -76,7 +77,20 @@ export async function simpanSkrining(_: HasilForm, fd: FormData): Promise<HasilF
       if (!Number.isFinite(kadar) || kadar < 3 || kadar > 20) return { galat: "Kadar Hb sepertinya belum benar (biasanya 8–16 g/dL)." };
     }
   }
+  // Status HANYA dari riwayat Hb/diagnosis; 5L & pola makan tidak memengaruhinya (PRD Draf 3)
   const status = tentukanStatus({ pernahPeriksa: pernah, kadarHb: kadar, diagnosis, batasHb: cfg.batasHbAnemia });
+
+  const tambahan: Record<string, number | string | boolean> = {};
+  for (const g of GEJALA_5L) {
+    const v = ambil(fd, g.kolom);
+    if (!["0", "1", "2"].includes(v)) return { galat: `Jawab dulu pertanyaan gejala "${g.nama}".` };
+    tambahan[g.kolom] = Number(v);
+  }
+  for (const q of POLA_MAKAN) {
+    const v = ambil(fd, q.kolom);
+    if (!q.opsi.some((o) => o.nilai === v)) return { galat: "Jawab dulu semua pertanyaan kebiasaan makan." };
+    tambahan[q.kolom] = KOLOM_BOOLEAN.has(q.kolom) ? v === "ya" : v;
+  }
 
   const db = supabaseAdmin();
   const { error } = await db.from("skrining").insert({
@@ -85,6 +99,7 @@ export async function simpanSkrining(_: HasilForm, fd: FormData): Promise<HasilF
     kadar_hb: kadar,
     diagnosis_anemia: diagnosis,
     status_hasil: status,
+    ...tambahan,
   });
   if (error) return { galat: "Gagal menyimpan: " + error.message };
   await db.from("siswi").update({ status, updated_at: new Date().toISOString() }).eq("id", s.id);

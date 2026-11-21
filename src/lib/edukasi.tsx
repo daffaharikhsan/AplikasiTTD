@@ -29,18 +29,21 @@ export const TOPIK: Topik[] = [
         </p>
         <h2>Yang sebaiknya dihindari</h2>
         <ul>
-          <li>Jangan minum TTD bersamaan dengan <strong>teh, kopi, atau susu</strong>: zat di dalamnya menghambat penyerapan zat besi.</li>
-          <li>Beri jarak sekitar 2 jam dari minum teh, kopi, susu, atau obat maag.</li>
+          <li>Jangan minum TTD bersamaan dengan <strong>teh atau kopi</strong> (taninnya mengikat zat besi) dan <strong>susu atau tablet kalsium (kalk)</strong> (kalsium menghambat penyerapan).</li>
+          <li>Jangan bersamaan dengan <strong>obat maag</strong> yang melapisi lambung.</li>
+          <li>Beri jarak <strong>2 jam</strong> sebelum atau sesudah minum TTD untuk semua yang di atas.</li>
         </ul>
         <h2>Kapan waktu terbaik?</h2>
         <p>
-          Pilih jam yang paling mudah kamu ingat dan konsisten setiap jadwal. Jika perut terasa tidak nyaman, coba minum
-          setelah makan atau menjelang tidur.
+          Minum TTD <strong>setelah makan</strong> (perut tidak kosong) atau <strong>malam sebelum tidur</strong>, supaya
+          tidak perih di ulu hati atau mual. Pilih jam yang mudah kamu ingat dan konsisten setiap jadwal.
         </p>
         <h2>Efek yang mungkin muncul</h2>
         <p>
-          Sebagian orang merasa mual ringan atau tinja berwarna hitam. Ini umumnya normal. Jika keluhan berat atau
-          mengganggu, ceritakan ke petugas UKS, bidan, atau puskesmas — jangan langsung berhenti.
+          Kadang muncul mual, nyeri di lambung, diare atau sulit buang air besar, dan tinja berwarna hitam. Semua ini
+          tidak berbahaya dan biasanya makin ringan. Tinja hitam berasal dari zat besi yang tidak terpakai. Kalau kurang
+          suka baunya, TTD boleh diminum dengan air jeruk atau jus buah. Jika keluhan berat, ceritakan ke petugas UKS,
+          bidan, atau puskesmas — jangan langsung berhenti.
         </p>
       </>
     ),
@@ -55,20 +58,24 @@ export const TOPIK: Topik[] = [
       <>
         <p>
           Anemia adalah keadaan ketika kadar <strong>hemoglobin (Hb)</strong> dalam darah lebih rendah dari normal. Hb
-          bertugas membawa oksigen ke seluruh tubuh, termasuk otak dan otot.
+          bertugas membawa oksigen ke seluruh tubuh, termasuk otak dan otot. Pada remaja putri usia 12 tahun ke atas,
+          disebut anemia jika <strong>Hb kurang dari 12 g/dL</strong>.
         </p>
         <h2>Tanda yang sering muncul</h2>
         <ul>
-          <li>Lemah, letih, lesu, mudah capek (5L)</li>
-          <li>Sulit konsentrasi, mengantuk di kelas</li>
-          <li>Pusing, mata berkunang-kunang</li>
+          <li><strong>5L</strong>: lesu, letih, lemah, lelah, dan lalai (mudah lupa, sulit konsentrasi)</li>
+          <li>Jantung sering berdebar, mudah sesak napas</li>
           <li>Wajah, kelopak mata bagian dalam, bibir, dan kuku tampak pucat</li>
         </ul>
+        <p>
+          Anemia sering terjadi perlahan sehingga gejalanya tidak terasa. Saat sudah terasa, biasanya anemianya sudah
+          cukup berat.
+        </p>
         <h2>Kenapa remaja putri berisiko?</h2>
         <ul>
           <li>Kehilangan darah setiap bulan saat haid</li>
           <li>Kebutuhan zat besi meningkat di masa pertumbuhan</li>
-          <li>Pola makan kurang sumber zat besi, atau sering diet</li>
+          <li>Pola makan kurang sumber zat besi, atau diet membatasi makan untuk menurunkan berat badan</li>
         </ul>
         <h2>Cara memastikannya</h2>
         <p>
@@ -89,13 +96,20 @@ export const TOPIK: Topik[] = [
         <h2>Untuk pencegahan</h2>
         <p>
           Remaja putri dianjurkan minum <strong>1 tablet TTD setiap minggu</strong> sepanjang tahun, sesuai program
-          pemerintah. Ini berlaku juga untuk kamu yang belum tahu kadar Hb-nya.
+          pemerintah. Satu tablet berisi <strong>60 mg besi elemental dan 400 mcg asam folat</strong>. Ini berlaku juga
+          untuk kamu yang belum tahu kadar Hb-nya.
         </p>
         <h2>Untuk pengobatan anemia</h2>
         <p>
           Jika kamu dinyatakan anemia, TTD diminum <strong>lebih sering (harian)</strong> dalam jangka waktu tertentu.
           Dosis dan lamanya ditentukan oleh <strong>tenaga kesehatan</strong>, lalu Hb diperiksa ulang untuk melihat
           hasilnya.
+        </p>
+        <h2>Kalau Hb-ku normal, apa tetap minum?</h2>
+        <p>
+          Ya. TTD untuk <strong>mencegah</strong> anemia, jadi tetap diminum walau Hb normal. TTD aman diminum rutin:
+          tubuh hanya menyerap zat besi sesuai kebutuhan, sisanya dibuang lewat tinja. TTD juga tidak menaikkan tekanan
+          darah dan tidak membuat haid lebih banyak.
         </p>
         <h2>Saat haid</h2>
         <p>
@@ -145,19 +159,23 @@ export const TOPIK: Topik[] = [
       <>
         <h2>Sumber hewani (paling mudah diserap)</h2>
         <ul>
-          <li>Hati ayam atau hati sapi</li>
-          <li>Daging merah, daging ayam</li>
-          <li>Ikan, kerang, telur</li>
+          <li>Ikan teri dan rebon kering (18–23 mg/100 g)</li>
+          <li>Hati ayam (15,8 mg), kerang (15,6 mg), belut (15,4 mg)</li>
+          <li>Daging sapi, abon sapi, hati sapi, ikan, telur</li>
         </ul>
         <h2>Sumber nabati</h2>
         <ul>
-          <li>Bayam, daun kelor, daun singkong, kangkung</li>
-          <li>Tempe, tahu, kacang-kacangan</li>
+          <li>Oncom, kacang-kacangan (kacang merah, kedelai, kacang hijau), tempe</li>
+          <li>Bayam merah, daun singkong, brokoli</li>
         </ul>
+        <p>
+          Zat besi dari tumbuhan sedikit yang terserap, jadi padukan dengan lauk hewani, misalnya sup sayur dengan ayam
+          atau ikan.
+        </p>
         <h2>Bantu penyerapannya</h2>
         <p>
-          Padukan dengan buah kaya <strong>vitamin C</strong> seperti jeruk, jambu biji, pepaya, atau tomat. Hindari minum
-          teh atau kopi tepat setelah makan.
+          Padukan dengan buah atau sayur kaya <strong>vitamin C</strong> seperti jeruk, jambu, tomat, brokoli, atau
+          paprika. Hindari minum teh atau kopi tepat setelah makan.
         </p>
       </>
     ),

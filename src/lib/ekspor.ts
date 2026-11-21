@@ -26,13 +26,13 @@ export const EKSPOR: Record<string, DefEkspor> = {
   siswi: {
     judul: "Data siswi",
     sumber: "siswi",
-    kolom: "id, nama, kelas, sekolah, no_wa, setuju_penelitian, setuju_at, consent_kertas_diterima, status, jam_minum, hari_minum, zona_waktu, mulai_tanggal, created_at",
+    kolom: "id, nama, usia, kelas, sekolah, no_wa, setuju_penelitian, setuju_at, consent_kertas_diterima, status, jam_minum, hari_minum, zona_waktu, mulai_tanggal, created_at",
     urut: [{ kolom: "created_at" }],
   },
   skrining: {
     judul: "Skrining Hb",
     sumber: "skrining",
-    kolom: "id, siswi_id, pernah_periksa_hb, kadar_hb, diagnosis_anemia, status_hasil, created_at",
+    kolom: "id, siswi_id, pernah_periksa_hb, kadar_hb, diagnosis_anemia, status_hasil, g_lesu, g_letih, g_lemah, g_lelah, g_lalai, skor_5l, makan_zat_besi, teh_kopi_saat_makan, lewat_sarapan, diet_pembatasan, vitamin_c_saat_makan, created_at",
     urut: [{ kolom: "created_at" }],
   },
   haid: {
@@ -47,11 +47,17 @@ export const EKSPOR: Record<string, DefEkspor> = {
     kolom: "id, tanggal, tahap, target, siswi_id, siswi_ids, penerima_id, kanal, status, detail, created_at",
     urut: [{ kolom: "created_at" }],
   },
+  "edukasi-siswi": {
+    judul: "Akses edukasi per siswi",
+    sumber: "rekap_edukasi_siswi",
+    kolom: "siswi_id, nama, kelas, sekolah, kategori_jadwal, jumlah_topik_dibuka, jumlah_kunjungan, akses_terakhir",
+    urut: [{ kolom: "nama" }],
+  },
   edukasi: {
-    judul: "Kunjungan edukasi",
-    sumber: "kunjungan_edukasi",
-    kolom: "id, siswi_id, topik, created_at",
-    urut: [{ kolom: "created_at" }],
+    judul: "Log akses edukasi",
+    sumber: "kunjungan_edukasi_lengkap",
+    kolom: "id, siswi_id, nama, kelas, sekolah, topik, waktu_akses",
+    urut: [{ kolom: "waktu_akses" }],
   },
   penerima: {
     judul: "Orang tua & guru",

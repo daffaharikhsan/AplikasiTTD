@@ -2,7 +2,7 @@
 
 PWA pengingat minum Tablet Tambah Darah (TTD) berbasis kalender untuk siswi SMA, dengan dukungan orang tua dan guru. Dibuat untuk penelitian S1 Kebidanan.
 
-**Teknologi:** Next.js 16 (PWA) · Supabase (database, login, penjadwal pg_cron) · Web Push · Vercel. WhatsApp (Fonnte) opsional sebagai cadangan.
+**Teknologi:** Next.js 16 (PWA) · Supabase (database, login, penjadwal pg_cron) · Web Push · Vercel. Tanpa WhatsApp gateway: pengingat lewat push notification.
 
 Panduan uji coba untuk penguji: [docs/PANDUAN_UJI_COBA.md](docs/PANDUAN_UJI_COBA.md)  
 Membuat akun uji & menghapus data uji: [docs/AKUN_DAN_DATA_UJI.md](docs/AKUN_DAN_DATA_UJI.md)
@@ -21,7 +21,7 @@ Membuat akun uji & menghapus data uji: [docs/AKUN_DAN_DATA_UJI.md](docs/AKUN_DAN
 2. +1 jam (anemia +30 menit) jika belum dicentang: siswi + ortu + guru, dengan nada lebih tegas
 3. Malam (19.00): hanya siswi
 
-Pengingat berhenti setelah siswi mencentang. Maksimal 2 pesan/hari per ortu/guru. Kanal utama adalah push notification. WhatsApp hanya dipakai bila penerima belum mengaktifkan push **dan** `FONNTE_TOKEN` diisi.
+Pengingat berhenti setelah siswi mencentang. Maksimal 2 pesan/hari per ortu/guru. Semua pengingat dikirim lewat push notification. WhatsApp hanya dipakai siswi/peneliti untuk membagikan link secara manual (tombol "Kirim link via WhatsApp").
 
 **Jadwal** (pedoman baru): tidak anemia dan belum diketahui = 1 tablet/minggu pada hari pilihan siswi. Anemia = harian. Tombol haid **tidak** menambah jadwal; tombol ini mencatat haid dan mengganti isi pesan.
 
@@ -53,7 +53,6 @@ Simpan `Public Key` dan `Private Key`.
 | `VAPID_SUBJECT` | `mailto:` + email peneliti |
 | `CRON_SECRET` | string acak panjang (mis. hasil `openssl rand -hex 24`) |
 | `PENELITI_PASSWORD` | kata sandi halaman `/peneliti` (min. 8 karakter) |
-| `FONNTE_TOKEN` | opsional, kosongkan jika tidak memakai WA |
 
 3. Deploy. Jika `NEXT_PUBLIC_APP_URL` baru diketahui setelah deploy pertama, isi lalu **Redeploy**.
 

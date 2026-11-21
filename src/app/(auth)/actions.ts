@@ -12,6 +12,7 @@ const ambil = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 export async function daftar(_: HasilForm, fd: FormData): Promise<HasilForm> {
   const nilai = {
     nama: ambil(fd, "nama"),
+    usia: ambil(fd, "usia"),
     kelas: ambil(fd, "kelas"),
     rombel: ambil(fd, "rombel"),
     sekolah: ambil(fd, "sekolah"),
@@ -21,6 +22,8 @@ export async function daftar(_: HasilForm, fd: FormData): Promise<HasilForm> {
   const setuju = fd.get("setuju") === "on";
 
   if (nilai.nama.length < 3) return { galat: "Tulis nama lengkapmu ya.", nilai };
+  const usia = Number(nilai.usia);
+  if (!Number.isInteger(usia) || usia < 10 || usia > 25) return { galat: "Tulis usiamu dalam tahun (10–25).", nilai };
   if (!["X", "XI", "XII"].includes(nilai.kelas)) return { galat: "Pilih kelasmu.", nilai };
   if (nilai.sekolah.length < 3) return { galat: "Tulis nama sekolahmu.", nilai };
   const noWa = normalisasiNomor(nilai.no_wa);
@@ -55,6 +58,7 @@ export async function daftar(_: HasilForm, fd: FormData): Promise<HasilForm> {
   const { error: galatProfil } = await admin.from("siswi").insert({
     id: dibuat.user.id,
     nama: nilai.nama,
+    usia,
     kelas,
     sekolah: nilai.sekolah,
     no_wa: noWa,

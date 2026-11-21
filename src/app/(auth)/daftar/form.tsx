@@ -35,6 +35,14 @@ export function FormDaftar() {
           <input id="nama" name="nama" required autoComplete="name" defaultValue={v.nama} placeholder="Nama kamu" className="isian" />
         </div>
 
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="usia" className="label">Usia</label>
+          <div className="flex h-[50px] w-40 items-center overflow-hidden rounded-2xl border-[1.5px] border-garis bg-white focus-within:outline-2 focus-within:outline-berry">
+            <input id="usia" name="usia" type="number" inputMode="numeric" min={10} max={25} required defaultValue={v.usia} placeholder="16" className="h-full min-w-0 flex-1 border-none bg-transparent px-4 text-base outline-none" />
+            <span className="px-4 text-[15px] text-muted">tahun</span>
+          </div>
+        </div>
+
         <div className="flex gap-3">
           <div className="flex flex-1 flex-col gap-1.5">
             <label htmlFor="kelas" className="label">Kelas</label>

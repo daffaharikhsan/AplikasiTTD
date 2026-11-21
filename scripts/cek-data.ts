@@ -53,7 +53,7 @@ async function semua<T>(tabel: string, kolom: string): Promise<T[]> {
     semua<{ siswi_id: string; penerima_id: string }>("siswi_penerima", "siswi_id, penerima_id"),
     semua<{ id: string; peran: string; nama: string | null; berhenti: boolean }>("penerima", "id, peran, nama, berhenti"),
     semua<{ siswi_id: string | null; penerima_id: string | null; user_agent: string | null }>("push_langganan", "siswi_id, penerima_id, user_agent"),
-    semua<{ siswi_id: string; status_hasil: string; created_at: string }>("skrining", "siswi_id, status_hasil, created_at"),
+    semua<{ siswi_id: string; status_hasil: string; created_at: string; skor_5l: number | null; makan_zat_besi: string | null }>("skrining", "siswi_id, status_hasil, created_at, skor_5l, makan_zat_besi"),
     semua<{ siswi_id: string; tanggal: string }>("konsumsi", "siswi_id, tanggal"),
     semua<{ siswi_id: string; mulai: string; selesai: string | null }>("periode_haid", "siswi_id, mulai, selesai"),
     semua<{ target: string; status: string; kanal: string }>("log_notifikasi", "target, status, kanal"),
@@ -129,6 +129,11 @@ async function semua<T>(tabel: string, kolom: string): Promise<T[]> {
   const tidakCocok = siswi.filter((s) => s.status && skriningTerakhir.get(s.id) !== s.status);
   if (tidakCocok.length) masalah("Kategori siswi berbeda dengan hasil skrining terakhir", tidakCocok.map((s) => `${nama(s.id)}: ${s.status} vs ${skriningTerakhir.get(s.id) ?? "tidak ada skrining"}`));
   else ok("Kategori siswi sesuai skrining terakhir");
+  const terakhirLengkap = new Map<string, boolean>();
+  for (const k of [...skrining].sort((a, b) => a.created_at.localeCompare(b.created_at))) terakhirLengkap.set(k.siswi_id, k.skor_5l !== null && k.makan_zat_besi !== null);
+  const tanpa5L = siswi.filter((s) => s.status && !terakhirLengkap.get(s.id));
+  if (tanpa5L.length) peringatan(`${tanpa5L.length} siswi belum mengisi skrining 5L & pola makan (skrining lama sebelum Draf 3 — minta perbarui lewat Profil)`, tanpa5L.map((s) => nama(s.id)));
+  else ok("Semua siswi sudah mengisi skrining 5L & pola makan");
 
   const centangAneh: string[] = [];
   for (const k of konsumsi) {

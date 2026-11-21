@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { siswiLogin } from "@/lib/siswi";
+import { supabaseAdmin } from "@/lib/supabase/server";
+import { pesanSkor5L } from "@/lib/skrining";
 import { ambilPengaturan } from "@/lib/pengaturan";
 import { MotifLingkaran } from "@/components/ui";
 import { IkonKalender } from "@/components/ikon";
@@ -8,7 +10,15 @@ import { IkonKalender } from "@/components/ikon";
 export const metadata: Metadata = { title: "Jangan lupa periksa Hb" };
 
 export default async function CekHb() {
-  await siswiLogin();
+  const s = await siswiLogin();
+  const { data: skrining } = await supabaseAdmin()
+    .from("skrining")
+    .select("skor_5l")
+    .eq("siswi_id", s.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const skor = typeof skrining?.skor_5l === "number" ? skrining.skor_5l : null;
   const cfg = await ambilPengaturan();
 
   return (
@@ -20,6 +30,14 @@ export default async function CekHb() {
         <p className="max-w-[320px] text-base leading-relaxed text-ink-2">
           Dengan tahu kadar Hb, jadwal TTD-mu bisa lebih pas. Kamu bisa periksa di puskesmas atau UKS sekolah.
         </p>
+        {skor !== null && (
+          <div className="flex w-full flex-col gap-0.5 rounded-[20px] bg-lavender px-4 py-3 text-left">
+            <span className="text-sm">
+              Skor gejalamu: <b>{skor}/10</b>
+            </span>
+            <span className="text-[13px] leading-snug text-ink-2">{pesanSkor5L(skor)}</span>
+          </div>
+        )}
         <div className="flex w-full items-center gap-3 rounded-[20px] bg-white px-4 py-3.5 text-left">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] bg-mint text-ink">
             <IkonKalender />

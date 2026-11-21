@@ -17,7 +17,9 @@ Data login tidak ditulis di file ini karena repo bersifat publik. Semua kredensi
 | PIN | ada di `.env.local` → `UJI_SISWI_PIN` |
 | Nama | Siswi UJI COBA · XI IPA 1 · SMA Uji Coba |
 | Kategori jadwal | Tidak anemia (Hb 12,8) → jadwal **mingguan** |
-| Jadwal awal | Setiap **Sabtu** jam **07.00** |
+| Usia | 16 tahun |
+| Skrining tambahan | Skor gejala 5L 3/10, pola makan sudah terisi |
+| Jadwal awal | Setiap **Senin** jam **07.00** |
 
 Akun ini dipakai bersama. Kalau Anda ingin menguji alur pendaftaran dari awal, **daftar akun baru** memakai nomor WhatsApp Anda sendiri (lihat Skenario A).
 

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { simpanSkrining } from "../actions";
 import { HalamanLangkah, KepalaLangkah, PesanGalat } from "@/components/ui";
 import { LABEL_STATUS, WARNA_STATUS, tentukanStatus, type Diagnosis } from "@/lib/jadwal";
+import { GEJALA_5L, POLA_MAKAN, SKALA_5L, pesanSkor5L } from "@/lib/skrining";
 
 function Pilihan<T extends string>({
   nama,
@@ -23,7 +24,7 @@ function Pilihan<T extends string>({
         return (
           <label
             key={o.nilai}
-            className={`flex min-h-[46px] flex-1 cursor-pointer items-center justify-center rounded-full px-2.5 text-center text-[15px] font-bold has-focus-visible:outline-2 has-focus-visible:outline-berry ${
+            className={`flex min-h-[46px] flex-1 cursor-pointer items-center justify-center rounded-full px-2 py-1.5 text-center text-[14px] leading-tight font-bold has-focus-visible:outline-2 has-focus-visible:outline-berry ${
               aktif ? "bg-berry text-white" : "border-[1.5px] border-garis bg-blush text-ink"
             }`}
           >
@@ -41,20 +42,25 @@ export function FormSkrining({ batasHb, ulang }: { batasHb: number; ulang: boole
   const [periksa, setPeriksa] = useState<"pernah" | "belum" | null>(null);
   const [diag, setDiag] = useState<Diagnosis | null>(null);
   const [hb, setHb] = useState("");
+  const [gejala, setGejala] = useState<Record<string, string>>({});
+  const [makan, setMakan] = useState<Record<string, string>>({});
 
   const kadar = hb ? Number(hb.replace(",", ".")) : null;
   const status =
     periksa && diag
       ? tentukanStatus({ pernahPeriksa: periksa === "pernah", kadarHb: kadar, diagnosis: diag, batasHb })
       : null;
-  const siap = Boolean(periksa && diag);
+  const gejalaLengkap = GEJALA_5L.every((g) => gejala[g.kolom] !== undefined);
+  const makanLengkap = POLA_MAKAN.every((q) => makan[q.kolom] !== undefined);
+  const skor5L = gejalaLengkap ? GEJALA_5L.reduce((n, g) => n + Number(gejala[g.kolom]), 0) : null;
+  const siap = Boolean(periksa && diag) && gejalaLengkap && makanLengkap;
 
   return (
     <form action={aksi} className="contents">
       <HalamanLangkah
         aksi={
           <button type="submit" disabled={!siap || memproses} className={siap ? "btn-utama" : "btn btn-nonaktif"}>
-            {memproses ? "Menyimpan…" : "Lihat jadwalku"}
+            {memproses ? "Menyimpan…" : siap ? "Lihat jadwalku" : "Jawab semua pertanyaan dulu"}
           </button>
         }
       >
@@ -115,15 +121,64 @@ export function FormSkrining({ batasHb, ulang }: { batasHb: number; ulang: boole
           />
         </fieldset>
 
+        <div className="flex flex-col gap-1 pt-2">
+          <h2 className="text-lg font-semibold">Gejala yang kamu rasakan</h2>
+          <p className="text-sm leading-normal text-muted">
+            Jawabanmu rahasia, tidak dilihat teman atau guru, dan bukan untuk menilaimu. Ini membantumu lebih mengenali
+            tubuhmu.
+          </p>
+        </div>
+        {GEJALA_5L.map((g) => (
+          <fieldset key={g.kolom} className="kartu flex flex-col gap-3">
+            <legend className="contents">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-xs font-bold tracking-[0.08em] text-muted uppercase">{g.nama}</span>
+                <span className="text-[15px] leading-snug font-semibold">{g.tanya}</span>
+              </span>
+            </legend>
+            <Pilihan
+              nama={g.kolom}
+              nilai={gejala[g.kolom] ?? null}
+              ubah={(v) => setGejala((x) => ({ ...x, [g.kolom]: v }))}
+              opsi={SKALA_5L.map((o) => ({ nilai: String(o.nilai), label: o.label }))}
+            />
+          </fieldset>
+        ))}
+        {skor5L !== null && (
+          <div className="flex flex-col gap-1 rounded-[18px] bg-lavender px-4 py-3.5" aria-live="polite">
+            <span className="text-sm">
+              Skor gejalamu: <b className="text-base">{skor5L}/10</b>
+            </span>
+            <span className="text-sm leading-snug text-ink-2">{pesanSkor5L(skor5L)}</span>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-1 pt-2">
+          <h2 className="text-lg font-semibold">Kebiasaan makanmu</h2>
+          <p className="text-sm leading-normal text-muted">Pilih yang paling sesuai dengan kebiasaanmu sehari-hari.</p>
+        </div>
+        {POLA_MAKAN.map((q) => (
+          <fieldset key={q.kolom} className="kartu flex flex-col gap-3">
+            <legend className="contents text-[15px] leading-snug font-semibold">{q.tanya}</legend>
+            <Pilihan
+              nama={q.kolom}
+              nilai={makan[q.kolom] ?? null}
+              ubah={(v) => setMakan((x) => ({ ...x, [q.kolom]: v }))}
+              opsi={q.opsi.map((o) => ({ nilai: o.nilai as string, label: o.label }))}
+            />
+          </fieldset>
+        ))}
+
         <div
           className={`flex items-center gap-3 rounded-[18px] px-4 py-3.5 ${status ? WARNA_STATUS[status] : "bg-garis-2"}`}
           aria-live="polite"
         >
           <span className="text-sm">Kategori jadwal:</span>
-          <b className="text-[15px]">{status ? LABEL_STATUS[status] : "Isi dulu pertanyaan di atas"}</b>
+          <b className="text-[15px]">{status ? LABEL_STATUS[status] : "Jawab pertanyaan Hb di atas"}</b>
         </div>
         <p className="-mt-2 text-[13px] leading-normal text-muted">
-          Ini hanya untuk mengatur jadwal pengingat, bukan diagnosis. Untuk kepastian, tanyakan ke tenaga kesehatan.
+          Kategori hanya ditentukan dari riwayat Hb dan diagnosis, untuk mengatur jadwal pengingat, bukan diagnosis.
+          Skor gejala dan kebiasaan makan tidak mengubah jadwal.
         </p>
       </HalamanLangkah>
     </form>

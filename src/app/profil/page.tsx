@@ -9,6 +9,7 @@ import { BagikanOrtu } from "@/components/bagikan-ortu";
 import { ChipStatus } from "@/components/ui";
 import { IkonGuru, IkonKeluar, IkonPensil, IkonTetesGaris } from "@/components/ikon";
 import { keluar } from "@/app/(auth)/actions";
+import { pesanSkor5L } from "@/lib/skrining";
 
 export const metadata: Metadata = { title: "Profil" };
 
@@ -17,7 +18,7 @@ export default async function Profil() {
   const kontak = await kontakSiswi(s.id);
   const { data: skrining } = await supabaseAdmin()
     .from("skrining")
-    .select("kadar_hb, pernah_periksa_hb, created_at")
+    .select("kadar_hb, pernah_periksa_hb, skor_5l, created_at")
     .eq("siswi_id", s.id)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -50,6 +51,14 @@ export default async function Profil() {
           {skrining?.kadar_hb ? `Hb terakhir: ${String(skrining.kadar_hb).replace(".", ",")} g/dL.` : skrining?.pernah_periksa_hb ? "Kadar Hb belum diisi." : "Belum pernah periksa Hb."}{" "}
           Kategori ini hanya untuk jadwal pengingat, bukan diagnosis.
         </p>
+        {typeof skrining?.skor_5l === "number" && (
+          <div className="flex flex-col gap-0.5 rounded-2xl bg-lavender px-3.5 py-3">
+            <span className="text-sm">
+              Skor gejala 5L: <b>{skrining.skor_5l}/10</b>
+            </span>
+            <span className="text-[13px] leading-snug text-ink-2">{pesanSkor5L(skrining.skor_5l)}</span>
+          </div>
+        )}
         <Link href="/mulai/skrining?ulang=1" className="btn-garis">Sudah periksa lagi? Perbarui Hb</Link>
       </section>
 

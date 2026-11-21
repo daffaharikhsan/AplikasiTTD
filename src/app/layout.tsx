@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Nunito_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { DaftarkanSW } from "@/components/daftarkan-sw";
+import { PendengarNada } from "@/components/pendengar-nada";
 import "./globals.css";
 
-const outfit = Outfit({ variable: "--font-outfit", subsets: ["latin"], weight: ["300", "400", "500", "600"] });
-const nunito = Nunito_Sans({ variable: "--font-nunito", subsets: ["latin"], weight: ["400", "600", "700"] });
+// Font sesuai desain terbaru (artifact): Inter untuk judul & isi
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: { default: "Pengingat TTD", template: "%s · Pengingat TTD" },
@@ -22,10 +27,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${outfit.variable} ${nunito.variable} h-full antialiased`}>
+    <html lang="id" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full">
         <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col has-[[data-lebar]]:max-w-6xl">{children}</div>
         <DaftarkanSW />
+        <PendengarNada />
       </body>
     </html>
   );

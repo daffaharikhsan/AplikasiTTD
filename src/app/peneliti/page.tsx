@@ -6,6 +6,7 @@ import { LABEL_STATUS, WARNA_STATUS, type StatusJadwal } from "@/lib/jadwal";
 import { teksUndanganGuru } from "@/lib/pesan";
 import { tampilNomor } from "@/lib/telepon";
 import { Logo } from "@/components/ui";
+import { TOPIK } from "@/lib/edukasi";
 import { FormMasukPeneliti } from "./form-masuk";
 import { keluarPeneliti, tandaiConsent } from "./actions";
 
@@ -13,29 +14,32 @@ export const metadata: Metadata = { title: "Peneliti", robots: { index: false, f
 
 type SiswiB = {
   id: string; nama: string; kelas: string; sekolah: string; status: StatusJadwal | null;
-  jam_minum: string | null; mulai_tanggal: string | null; consent_kertas_diterima: boolean; created_at: string;
+  jam_minum: string | null; mulai_tanggal: string | null; consent_kertas_diterima: boolean; created_at: string; usia: number | null;
 };
 type RekapB = { siswi_id: string; jumlah_jadwal: number; jumlah_diminum: number; persen_kepatuhan: number | null };
 type PenerimaB = { id: string; peran: "ortu" | "guru"; nama: string | null; no_wa: string; token: string; berhenti: boolean };
 type RelasiB = { siswi_id: string; penerima_id: string };
 type PushB = { siswi_id: string | null; penerima_id: string | null };
 type LogB = { status: string; target: string };
+type KunjunganB = { siswi_id: string; topik: string; created_at: string };
+type SkriningB = { siswi_id: string; skor_5l: number | null; makan_zat_besi: string | null; created_at: string };
 
 const EKSPOR = [
   ["kepatuhan-harian", "Kepatuhan harian (per siswi per jadwal)"],
   ["kepatuhan-siswi", "Rekap kepatuhan per siswi"],
   ["siswi", "Data siswi"],
-  ["skrining", "Skrining Hb"],
+  ["skrining", "Skrining (Hb, 5L, pola makan)"],
   ["haid", "Periode haid"],
   ["notifikasi", "Log notifikasi"],
-  ["edukasi", "Kunjungan edukasi"],
+  ["edukasi-siswi", "Akses edukasi per siswi"],
+  ["edukasi", "Log akses edukasi (per kunjungan)"],
   ["penerima", "Orang tua & guru"],
   ["siswi-penerima", "Relasi siswi ↔ ortu/guru"],
 ] as const;
 
 const persen = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : "–");
 
-export default async function Peneliti() {
+export default async function Peneliti({ searchParams }: PageProps<"/peneliti">) {
   if (!(await penelitiMasuk())) {
     return (
       <main data-lebar className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center gap-4 px-6 py-12">
@@ -47,14 +51,41 @@ export default async function Peneliti() {
 
   const cfg = await ambilPengaturan();
   const hariIni = saatLokal(cfg.zonaWaktu).tanggal;
-  const [siswi, rekap, penerima, relasi, push, log] = await Promise.all([
-    ambilSemua<SiswiB>("siswi", "id, nama, kelas, sekolah, status, jam_minum, mulai_tanggal, consent_kertas_diterima, created_at", [{ kolom: "nama" }]),
+  const filterEdukasi = (await searchParams).edukasi;
+  const [siswi, rekap, penerima, relasi, push, log, kunjungan, skriningData] = await Promise.all([
+    ambilSemua<SiswiB>("siswi", "id, nama, usia, kelas, sekolah, status, jam_minum, mulai_tanggal, consent_kertas_diterima, created_at", [{ kolom: "nama" }]),
     ambilSemua<RekapB>("rekap_kepatuhan_siswi", "siswi_id, jumlah_jadwal, jumlah_diminum, persen_kepatuhan"),
     ambilSemua<PenerimaB>("penerima", "id, peran, nama, no_wa, token, berhenti"),
     ambilSemua<RelasiB>("siswi_penerima", "siswi_id, penerima_id"),
     ambilSemua<PushB>("push_langganan", "siswi_id, penerima_id"),
     ambilSemua<LogB>("log_notifikasi", "status, target"),
+    ambilSemua<KunjunganB>("kunjungan_edukasi", "siswi_id, topik, created_at", [{ kolom: "created_at" }]),
+    ambilSemua<SkriningB>("skrining", "siswi_id, skor_5l, makan_zat_besi, created_at", [{ kolom: "created_at" }]),
   ]);
+
+  // ---- Akses edukasi per siswi (PRD Draf 3, bagian 5) ----
+  const judulTopik = new Map(TOPIK.map((t) => [t.slug, t.judul]));
+  const eduPer = new Map<string, Map<string, { kali: number; terakhir: string }>>();
+  for (const k of kunjungan) {
+    const m = eduPer.get(k.siswi_id) ?? new Map<string, { kali: number; terakhir: string }>();
+    const lama = m.get(k.topik);
+    m.set(k.topik, { kali: (lama?.kali ?? 0) + 1, terakhir: k.created_at });
+    eduPer.set(k.siswi_id, m);
+  }
+  const terakhirEdu = (id: string) => {
+    const m = eduPer.get(id);
+    return m ? ([...m.values()].map((v) => v.terakhir).sort().pop() ?? null) : null;
+  };
+  const fmtWaktu = (iso: string) =>
+    new Intl.DateTimeFormat("id-ID", { timeZone: cfg.zonaWaktu, day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+  const sudahEdu = siswi.filter((s) => eduPer.has(s.id));
+  const daftarEdu =
+    filterEdukasi === "sudah" ? sudahEdu : filterEdukasi === "belum" ? siswi.filter((s) => !eduPer.has(s.id)) : siswi;
+
+  // ---- Skrining tambahan (5L & pola makan) lengkap, dari skrining terakhir tiap siswi ----
+  const skriningTerakhir = new Map<string, SkriningB>();
+  for (const k of skriningData) skriningTerakhir.set(k.siswi_id, k);
+  const skrining5LLengkap = [...skriningTerakhir.values()].filter((k) => k.skor_5l !== null && k.makan_zat_besi !== null).length;
 
   const rekapPer = new Map(rekap.map((r) => [r.siswi_id, r]));
   const pushSiswi = new Set(push.map((p) => p.siswi_id).filter(Boolean));
@@ -86,6 +117,8 @@ export default async function Peneliti() {
     { label: "Kepatuhan total", nilai: persen(totalMinum, totalJadwal), ket: `${totalMinum}/${totalJadwal} jadwal` },
     { label: "Siswi patuh ≥ 80%", nilai: `${patuh80}`, ket: persen(patuh80, rekap.length) },
     { label: "Pesan ortu/guru terkirim", nilai: persen(terkirimOrtuGuru, logOrtuGuru.length), ket: `${terkirimOrtuGuru}/${logOrtuGuru.length} · target ≥ 95%` },
+    { label: "Skrining 5L & pola makan", nilai: `${skrining5LLengkap}`, ket: `${persen(skrining5LLengkap, siswi.length)} · target ≥ 90%` },
+    { label: "Buka edukasi ≥ 1 topik", nilai: `${sudahEdu.length}`, ket: `${persen(sudahEdu.length, siswi.length)} · target semua siswi` },
     { label: "Push aktif", nilai: `${pushSiswi.size} siswi`, ket: `${ortu.filter((o) => pushPenerima.has(o.id)).length}/${ortu.length} ortu · ${guru.filter((g) => pushPenerima.has(g.id)).length}/${guru.length} guru` },
   ];
 
@@ -102,7 +135,7 @@ export default async function Peneliti() {
         </form>
       </div>
 
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {statistik.map((s) => (
           <div key={s.label} className="flex flex-col gap-1 rounded-[20px] bg-white p-4">
             <span className="text-[13px] text-muted">{s.label}</span>
@@ -144,6 +177,108 @@ export default async function Peneliti() {
         </p>
       </section>
 
+      <section className="flex flex-col gap-3 rounded-[24px] bg-white p-5" id="edukasi">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col">
+            <h2 className="font-judul text-lg font-medium">Akses halaman edukasi</h2>
+            <span className="text-[13px] text-muted">
+              Siapa saja yang sudah/belum membuka setiap topik. Klik angka topik untuk rinciannya.
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { k: "semua", l: `Semua (${siswi.length})` },
+              { k: "sudah", l: `Sudah ≥ 1 topik (${sudahEdu.length})` },
+              { k: "belum", l: `Belum sama sekali (${siswi.length - sudahEdu.length})` },
+            ].map((f) => {
+              const aktif = (filterEdukasi ?? "semua") === f.k;
+              return (
+                <a
+                  key={f.k}
+                  href={`?edukasi=${f.k}#edukasi`}
+                  aria-current={aktif ? "true" : undefined}
+                  className={`flex min-h-10 items-center rounded-full px-3.5 text-[13px] font-bold no-underline ${aktif ? "bg-berry text-white" : "border-[1.5px] border-garis-3 text-ink"}`}
+                >
+                  {f.l}
+                </a>
+              );
+            })}
+            <a
+              href="/api/ekspor/edukasi-siswi?format=xlsx"
+              download
+              className="flex min-h-10 items-center rounded-full bg-petal px-3.5 text-[13px] font-bold text-ink no-underline"
+            >
+              Ekspor Excel
+            </a>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead className="text-muted">
+              <tr>
+                <th className="py-2 pr-3">Nama</th>
+                <th className="pr-3">Kelas</th>
+                <th className="pr-3">Sekolah</th>
+                <th className="pr-3">Status anemia</th>
+                <th className="pr-3">Kepatuhan TTD</th>
+                <th className="pr-3">Topik dibuka</th>
+                <th>Akses terakhir</th>
+              </tr>
+            </thead>
+            <tbody>
+              {daftarEdu.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-3 text-muted">Tidak ada siswi pada filter ini.</td>
+                </tr>
+              )}
+              {daftarEdu.map((s) => {
+                const m = eduPer.get(s.id);
+                const r = rekapPer.get(s.id);
+                const akhir = terakhirEdu(s.id);
+                return (
+                  <tr key={s.id} className="border-t border-garis-2 align-top">
+                    <td className="py-2 pr-3 font-semibold">{s.nama}</td>
+                    <td className="py-2 pr-3">{s.kelas}</td>
+                    <td className="py-2 pr-3">{s.sekolah}</td>
+                    <td className="py-2 pr-3">
+                      {s.status ? (
+                        <span className={`chip ${WARNA_STATUS[s.status]}`}>{LABEL_STATUS[s.status]}</span>
+                      ) : (
+                        <span className="text-muted">Belum skrining</span>
+                      )}
+                    </td>
+                    <td className="py-2 pr-3">{r ? `${r.persen_kepatuhan ?? 0}%` : "—"}</td>
+                    <td className="py-2 pr-3">
+                      {m ? (
+                        <details>
+                          <summary className="cursor-pointer font-bold text-berry">
+                            {m.size}/{TOPIK.length}
+                          </summary>
+                          <ul className="mt-1.5 flex flex-col gap-1 text-[13px]">
+                            {TOPIK.map((t) => {
+                              const v = m.get(t.slug);
+                              return (
+                                <li key={t.slug} className={v ? "" : "text-muted"}>
+                                  {v ? "✓" : "–"} {judulTopik.get(t.slug)}
+                                  {v && <span className="text-muted"> · {v.kali}× · terakhir {fmtWaktu(v.terakhir)}</span>}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </details>
+                      ) : (
+                        <span className="text-muted">0/{TOPIK.length}</span>
+                      )}
+                    </td>
+                    <td className="py-2">{akhir ? fmtWaktu(akhir) : "—"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section className="flex flex-col gap-3 rounded-[24px] bg-white p-5">
         <h2 className="font-judul text-lg font-medium">Guru ({guru.length})</h2>
         <p className="text-[13px] text-muted">Kirim link ke setiap guru. Guru membuka link lalu menekan &ldquo;Aktifkan pengingat&rdquo;.</p>
@@ -181,7 +316,7 @@ export default async function Peneliti() {
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="text-muted">
               <tr>
-                <th className="py-2 pr-3">Nama</th><th className="pr-3">Kelas</th><th className="pr-3">Sekolah</th><th className="pr-3">Kategori</th>
+                <th className="py-2 pr-3">Nama</th><th className="pr-3">Usia</th><th className="pr-3">Kelas</th><th className="pr-3">Sekolah</th><th className="pr-3">Kategori</th>
                 <th className="pr-3">Jam</th><th className="pr-3">Kepatuhan</th><th className="pr-3">Push siswi</th><th className="pr-3">Push ortu</th><th>Consent kertas</th>
               </tr>
             </thead>
@@ -191,6 +326,7 @@ export default async function Peneliti() {
                 return (
                   <tr key={s.id} className="border-t border-garis-2">
                     <td className="py-2 pr-3 font-semibold">{s.nama}</td>
+                    <td className="pr-3">{s.usia ?? "—"}</td>
                     <td className="pr-3">{s.kelas}</td>
                     <td className="pr-3">{s.sekolah}</td>
                     <td className="pr-3">{s.status ? <span className={`chip ${WARNA_STATUS[s.status]}`}>{LABEL_STATUS[s.status]}</span> : <span className="text-muted">Belum skrining</span>}</td>

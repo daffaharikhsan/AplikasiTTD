@@ -17,7 +17,7 @@ function siapkanVapid() {
 type Pemilik = { siswiId: string } | { penerimaId: string };
 
 export type HasilKirim = {
-  kanal: "push" | "wa" | "tidak_ada";
+  kanal: "push" | "tidak_ada";
   status: "terkirim" | "gagal" | "dilewati";
   detail?: string;
 };
@@ -59,44 +59,13 @@ export async function kirimPush(pemilik: Pemilik, isi: IsiNotifikasi & { url: st
   return { terkirim, total: langganan?.length ?? 0, galat };
 }
 
-/** WhatsApp cadangan via Fonnte. Tidak melakukan apa pun jika FONNTE_TOKEN kosong. */
-export async function kirimWA(nomor: string, teks: string): Promise<{ ok: boolean; detail: string }> {
-  const token = process.env.FONNTE_TOKEN;
-  if (!token) return { ok: false, detail: "FONNTE_TOKEN tidak diatur" };
-  try {
-    const body = new FormData();
-    body.set("target", nomor);
-    body.set("message", teks);
-    body.set("countryCode", "62");
-    const res = await fetch("https://api.fonnte.com/send", {
-      method: "POST",
-      headers: { Authorization: token },
-      body,
-    });
-    const json = (await res.json().catch(() => ({}))) as { status?: boolean; reason?: string; detail?: string };
-    return { ok: res.ok && json.status !== false, detail: json.reason || json.detail || `HTTP ${res.status}` };
-  } catch (e) {
-    return { ok: false, detail: (e as Error).message };
-  }
-}
-
-export const waAktif = () => Boolean(process.env.FONNTE_TOKEN);
-
-/**
- * Kanal utama push; jika tidak ada perangkat yang terdaftar/terkirim, WA (jika aktif).
- */
+/** Satu-satunya kanal pengingat adalah push notification (WhatsApp gateway tidak dipakai). */
 export async function kirimKe(
   pemilik: Pemilik,
-  nomorWa: string | null,
   isi: IsiNotifikasi & { url: string; tag?: string },
 ): Promise<HasilKirim> {
   const push = await kirimPush(pemilik, isi);
   if (push.terkirim > 0) return { kanal: "push", status: "terkirim", detail: `${push.terkirim}/${push.total} perangkat` };
-
-  if (nomorWa && waAktif()) {
-    const wa = await kirimWA(nomorWa, `*${isi.judul}*\n${isi.isi}\n\n${isi.url}`);
-    return { kanal: "wa", status: wa.ok ? "terkirim" : "gagal", detail: wa.detail };
-  }
   if (push.total > 0) return { kanal: "push", status: "gagal", detail: push.galat };
   return { kanal: "tidak_ada", status: "dilewati", detail: "Belum mengaktifkan notifikasi" };
 }

@@ -12,16 +12,23 @@ self.addEventListener("push", (event) => {
   }
   const title = data.title || "Pengingat TTD";
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: data.body || "",
-      icon: "/ikon/192",
-      badge: "/ikon/96",
-      tag: data.tag || undefined,
-      renotify: Boolean(data.tag),
-      requireInteraction: true,
-      vibrate: [200, 100, 200],
-      data: { url: data.url || "/" },
-    }),
+    Promise.all([
+      self.registration.showNotification(title, {
+        body: data.body || "",
+        icon: "/ikon/192",
+        badge: "/ikon/96",
+        tag: data.tag || undefined,
+        renotify: Boolean(data.tag),
+        requireInteraction: true,
+        // Getar mengikuti irama nada TTD (dua ketukan, jeda, panjang)
+        vibrate: [100, 40, 100, 120, 420, 140, 120, 60, 120, 60, 200],
+        data: { url: data.url || "/" },
+      }),
+      // Aplikasi sedang terbuka → minta halaman memutar nada TTD
+      self.clients
+        .matchAll({ type: "window", includeUncontrolled: true })
+        .then((list) => list.forEach((c) => c.postMessage({ type: "pengingat-ttd", title }))),
+    ]),
   );
 });
 
